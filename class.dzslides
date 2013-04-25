@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+$for(author-meta)$
+  <meta name="author" content="$author-meta$" />
+$endfor$
+$if(date-meta)$
+  <meta name="dcterms.date" content="$date-meta$" />
+$endif$
+  <title>$if(title-prefix)$$title-prefix$ - $endif$$if(pagetitle)$$pagetitle$$endif$</title>
+$if(highlighting-css)$
+  <style type="text/css">
+$highlighting-css$
+  </style>
+$endif$
+$if(css)$
+$for(css)$
+  <link rel="stylesheet" href="$css$" $if(html5)$$else$type="text/css" $endif$/>
+$endfor$
+$else$
+$endif$
+$if(math)$
+  $math$
+$endif$
+$for(header-includes)$
+  $header-includes$
+$endfor$
+</head>
+<body>
+$if(title)$
+<section>
+  <h1 class="title">$title$</h1>
+  <h3 class="date">$date$</h3>
+$for(author)$
+  <footer class="author">$author$</footer>
+$endfor$
+</section>
+$endif$
+$for(include-before)$
+$include-before$
+$endfor$
+$body$
+$for(include-after)$
+$include-after$
+$endfor$
+<!-- Your Style 0622 reagle -->
+<!-- Define the style of your presentation -->
+
+<link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,900' rel='stylesheet' type='text/css'>
+
+<style>
+  section {
+      -moz-transition: top 250ms linear 0s;
+      -webkit-transition: top 250ms linear 0s;
+      -o-transition: top 250ms linear 0s;
+      -ms-transition: top 250ms linear 0s;
+      transition: top 250ms linear 0s;
+  }
+  section { top: -150%; }
+  section[aria-selected] { top: 0; }
+  section[aria-selected] ~ section { top: +150% }
+
+  a { color: inherit; }
+  a:hover {text-decoration: underline;}
+  body { font-family: 'Lato', sans-serif; }
+  html { background-color: black; }
+  body { background-color: white; }
+  section:first-of-type > * { position: absolute; }
+
+  h1 {
+    color: #111;
+    font-weight: 900;
+    margin-top: 70px;
+    text-transform: uppercase;
+    font-size: 70px;
+    text-align: center;
+    width: 100%;
+  }
+
+  h2 {
+    top: 190px;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 60px;
+    margin-top: 70px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  p {
+    color: #d53c27;
+  }
+  
+  .alone h1 {
+    line-height: 600px;
+    margin-top: 0;
+  }
+
+  section:first-of-type h1 {
+    font-size: 50px;
+    margin-top: 70px;
+    top: 10px;
+    left: 10px;
+    width: 780px;
+    text-align: center;
+    line-height: 0.9;
+  }
+  section:first-of-type h1 em {
+    display: block;
+    font-size: 130px;
+    font-style: normal;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.1;
+  }
+
+  h1 > strong {
+    color: white;
+    position: absolute;
+    top: 250px; left: 0;
+    display: block;
+    height: 100px;
+    margin-right: 1em;
+    width: 100px;
+    background-color: #ddd;
+    color: white;
+    text-align: center;
+    font-size: 90px;
+    line-height: 1;
+  }
+
+  footer {
+    display: block;
+    text-align: center;
+    color: #d53c27;
+    font-style: normal;
+    font-size: 50px;
+    font-weight: 300;
+    bottom: 1em;
+    width: 100%;
+    right: 0;
+  }
+
+  .fullscreen {
+      background-color: black;
+  }
+
+  ul {
+    margin: 50px 25px 0px 100px;
+    font-size: 30px;
+    font-weight: 400;
+    list-style: none;
+  }
+
+  ul ul {
+    margin-top: 0.5em;
+  }
+
+  li {
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  ul li:before {
+    content:'\2022';
+    display: block;
+    position: relative;
+    max-width: 0px;
+    max-height: 0px;
+    left: -1em;
+    top: 0.15em;
+    color: #999;
+    font-size: 0.8em;
+  }
+
+  p strong,
+  li strong {
+    color: black;
+    font-size: 70%;
+    font-style: italic;
+    font-weight: 100;
+  }
+
+  pre {
+    font-size: 1.25em;
+    margin: 50px 100px 0px 100px;
+    background-color: #eed;
+    padding: 1em;
+  }
+
+  code {
+    color: #666;
+  }
+
+  pre code {
+    color: black;
+  }
+
+  p {
+    font-size: 1.75em;
+    margin: 50px 10px 0px 100px;
+  }
+
+  #todays-theme p {
+    text-align: center;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  #todays-theme ol {
+    font-size: 3em;
+    list-style: decimal;
+    margin: 50px 100px 0px 200px;
+  }
+
+  /* Incremental elements */
+
+  .incremental li:first-of-type {
+    /*display: block !important;*/
+    /*opacity: 1 !important;*/
+    /*visibility: visible !important;*/
+  }
+
+  /* By default, visible */
+  .incremental > * { 
+    opacity: 1; 
+  }
+
+  /* The current item */
+  .incremental > *[aria-selected] { 
+    background-color: #fff; 
+    opacity: 1; 
+    -webkit-transition: background-color 1000ms linear;
+  }
+
+  /* The items to-be-selected */
+  .incremental > *[aria-selected] ~ * { 
+    background-color: #faffcc; 
+    opacity: 0; 
+  }
+</style>
+
+
+$dzslides-core$
+</body>
+</html>
