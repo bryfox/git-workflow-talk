@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+  <meta name="author" content="git workflows" />
+  <title>Merge made by octopus</title>
+</head>
+<body>
+<section>
+  <h1 class="title"><em>Merge</em> made by <em>octopus</em></h1>
+  <h3 class="date"></h3>
+  <footer class="author">git workflows</footer>
+</section>
+<section id="before-we-start" class="slide level1 alone">
+<h1>Before we start</h1>
+<!-- This is not server-side git, or git for project maintainers -->
+
+</section>
+<section id="goals" class="slide level1">
+<h1>Goals</h1>
+<ul>
+<li>Not to dictate any specific workflow</li>
+<li>Know your tools well</li>
+<li>Think about how you communicate to a team, or a client, or a future developer
+<ul>
+<li>not just your present self</li>
+</ul></li>
+</ul>
+</section>
+<section id="specific-goals" class="slide level1">
+<h1>Specific Goals</h1>
+<ul>
+<li>Readable commit histories <!-- messages, tags -->
+<ul>
+<li>A form of documentation</li>
+</ul></li>
+<li>Isolating functional changes, without losing granularity</li>
+<li>Communicating the current state of development <!-- branches --></li>
+</ul>
+<!-- Another level of communication to future developers -->
+
+</section>
+<section id="todays-theme" class="slide level1">
+<h1>Today’s Theme</h1>
+<p>What you do in private is your own business.</p>
+<ol type="1">
+<li>Branch, stash, and commit freely.</li>
+<li>Clean up after yourself.</li>
+</ol>
+</section>
+<section class="slide level1">
+
+<h2 id="and-a-quick-review">And a quick review…</h2>
+<ul>
+<li>Working area, Staging (Index), Repository, Remotes</li>
+<li>Once committed, you are safe. <strong>(Unless you’re not.)</strong></li>
+<li>Read git’s feedback messages</li>
+<li>Man pages; <em>Pro Git</em></li>
+</ul>
+<!--code-->
+
+<pre><code>git help [command]</code></pre>
+</section>
+<section id="tools" class="slide level1">
+<h1>Tools</h1>
+<ul>
+<li>Command line</li>
+</ul>
+</section>
+<section id="other-tools" class="slide level1">
+<h1>Other Tools</h1>
+<ul>
+<li>Visualizations: gitx, gitk, …?</li>
+<li>Other tools <strong>(I’m looking at you, github-for-mac)</strong> are leaky</li>
+<li>Integrated Tools &amp; APIs: Keep in mind when crafting commit messages</li>
+</ul>
+<!-- code -->
+
+<pre><code>Fix the foo in the blazz [#132]</code></pre>
+</section>
+<section id="config" class="slide level1">
+<h1>Config</h1>
+<ul>
+<li>set your editor</li>
+<li>aliases
+<ul>
+<li>and tab completion</li>
+<li>but don’t rely completely on your env <!-- fucking "gs" --></li>
+</ul></li>
+</ul>
+<!--code-->
+
+<pre><code>[alias]
+co = checkout</code></pre>
+</section>
+<section id="commands" class="slide level1 alone">
+<h1>Commands</h1>
+</section>
+<section class="slide level1">
+
+<h2 id="branch">Branch</h2>
+<p>…is the single most powerful feature of git, compared to even other DVCSs <strong>(Don’t believe the Hg Hype)</strong></p>
+<ul>
+<li>Local branching is cheap: go crazy <!-- it will improve your other  --></li>
+<li>Shared feature branching (pushed to origin)</li>
+<li>Keeping a branch clean and deployable
+<ul>
+<li><code>master</code> or <code>deploy</code></li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="branch-1">Branch</h2>
+<ul>
+<li>So, do we think differently about web vs. iOS vs…?
+<ul>
+<li>Deployability</li>
+<li>ignores</li>
+<li>IDEs</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="branch-2">Branch</h2>
+<ul>
+<li>remote (origin) branches; tracking</li>
+<li>Communicate deletions</li>
+</ul>
+<!-- -u == set-upstream -->
+
+<pre><code>git checkout -b mybranch
+git push -u origin mybranch 
+git checkout -t origin/yourbranch
+git push heroku dev:master
+git push origin :mybranch # DELETE</code></pre>
+</section>
+<section class="slide level1">
+
+<h2 id="stash">Stash</h2>
+<ul>
+<li>I think of stashes as temporary</li>
+<li>If I don’t pop within an hour, I won’t be using it</li>
+<li>One use case: moving to a new branch</li>
+<li>Naming can be helpful, but see above</li>
+<li>For persisted changes, I prefer <code>branch</code> + <code>commit</code></li>
+<li>Tip: stash before <code>reset --hard</code></li>
+<li>As always, pay attention to the branch you’re on</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="stash-1">Stash</h2>
+<pre><code>git stash save [Your message here]
+git stash pop
+
+git stash list
+git stash show stash@{2}
+git stash drop stash@{2}</code></pre>
+</section>
+<section class="slide level1">
+
+<h2 id="tag">Tag</h2>
+<ul>
+<li>All releases should be tagged</li>
+<li>Other milestones (CoreData schema changes)</li>
+<li>Annotate: <code>-a</code></li>
+<li>You can always tag later; change tags; etc. <!-- The one exception to rewriting history? --></li>
+</ul>
+<!--code-->
+
+<pre><code>git tag -a v0.1.2 -m &quot;Beta release with new foobars&quot;
+git tag -a &quot;CoreData Migration 1.1&quot; ecacf50
+git push --tags</code></pre>
+</section>
+<section class="slide level1">
+
+<h2 id="rebase">Rebase</h2>
+<p>Rebasing is the tool that lets you enjoy frequent local commits without subjecting others to your insane commit histories.</p>
+<ul>
+<li>Goal: Readable histories</li>
+<li>Goal: isolation of changes for finding problems, regressions (e.g., bisect)</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="rebase-1">Rebase</h2>
+<ul>
+<li>NEVER rewrite history that has been pushed somewhere accessible to others</li>
+<li><code>pull --rebase</code> obscures “true” history, but is cleaner</li>
+<li>Otherwise, <em>always</em> use <code>-i</code></li>
+</ul>
+<!-- code -->
+
+<pre><code>git pull --rebase
+git rebase -i HEAD~~</code></pre>
+</section>
+<section class="slide level1">
+
+<h2 id="rebase-2">Rebase</h2>
+<p>More on granularity vs. clarity…</p>
+<ul>
+<li>Frequent commits to avoid conflicts early in project</li>
+<li>Changes that should happen alone
+<ul>
+<li>whitespace</li>
+<li>move files</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="reflog">Reflog</h2>
+<ul>
+<li>A history of everything you’ve done
+<ul>
+<li>commits</li>
+<li>checkouts</li>
+<li>merges</li>
+<li>rebases</li>
+<li>(Note! Not stashes)</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="reflog-1">Reflog</h2>
+<ul>
+<li>This is often your recourse when something went wrong</li>
+</ul>
+<!-- code -->
+
+<pre><code>git reflog</code></pre>
+</section>
+<section class="slide level1">
+
+<h2 id="bisect">Bisect</h2>
+<ul>
+<li>Goal: find regressions</li>
+<li>Binary search on functional changes</li>
+<li>Handy when tracking things down in other people’s code</li>
+</ul>
+<!--code-->
+
+<pre><code>git bisect start
+git bisect [good|bad]
+git bisect reset
+
+git bisect run [command] # auto-find the bad commit</code></pre>
+</section>
+<section class="slide level1">
+
+<h2 id="ignore">Ignore</h2>
+<ul>
+<li><code>.gitignore</code> files are out there</li>
+<li>Generated or compiled files …usually taken care of.
+<ul>
+<li>e.g., CSS, built files, <code>/bin</code></li>
+</ul></li>
+<li>ENV (passwords, security)</li>
+</ul>
+</section>
+<section class="slide level1">
+
+<h2 id="ignore-1">Ignore</h2>
+<ul>
+<li>Design source files; usually stored outside the directory</li>
+<li>But may make sense to include,
+<ul>
+<li>as long as they’re not part of the deployable slug</li>
+<li>Perforce? Adobe? Dropbox?</li>
+</ul></li>
+</ul>
+</section>
+<section id="comments" class="slide level1 alone">
+<h1>Comments</h1>
+</section>
+<section class="slide level1">
+
+<h2 id="commit-comments">Commit Comments</h2>
+<ul>
+<li>Short, direct single line</li>
+<li>Multiple lines (after space) if needed</li>
+<li>API integrations (commit hooks)</li>
+</ul>
+<!-- code -->
+
+<pre><code>git commit --amend</code></pre>
+</section>
+<section id="goals-rehashed" class="slide level1">
+<h1>Goals, rehashed</h1>
+<ul>
+<li>Readable commit history</li>
+<li>Good commenting</li>
+<li>Rebase vs. merge</li>
+<li>Tradeoff between readability and granularity: this is an art</li>
+</ul>
+</section>
+<section id="questions" class="slide level1 alone">
+<h1>Questions?</h1>
+</section>
+<section id="rebase-demo" class="slide level1 alone">
+<h1>Rebase Demo</h1>
+<!-- @ Upstart Labs, 4/25/2013 -->
+
+
+</section>
+<!-- Your Style 0622 reagle -->
+<!-- Define the style of your presentation -->
+
+<link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,900' rel='stylesheet' type='text/css'>
+
+<style>
+  section {
+      -moz-transition: top 250ms linear 0s;
+      -webkit-transition: top 250ms linear 0s;
+      -o-transition: top 250ms linear 0s;
+      -ms-transition: top 250ms linear 0s;
+      transition: top 250ms linear 0s;
+  }
+  section { top: -150%; }
+  section[aria-selected] { top: 0; }
+  section[aria-selected] ~ section { top: +150% }
+
+  a { color: inherit; }
+  a:hover {text-decoration: underline;}
+  body { font-family: 'Lato', sans-serif; }
+  html { background-color: black; }
+  body { background-color: white; }
+  section:first-of-type > * { position: absolute; }
+
+  h1 {
+    color: #111;
+    font-weight: 900;
+    margin-top: 70px;
+    text-transform: uppercase;
+    font-size: 70px;
+    text-align: center;
+    width: 100%;
+  }
+
+  h2 {
+    top: 190px;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 60px;
+    margin-top: 70px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  p {
+    color: #d53c27;
+  }
+  
+  .alone h1 {
+    line-height: 600px;
+    margin-top: 0;
+  }
+
+  section:first-of-type h1 {
+    font-size: 50px;
+    margin-top: 70px;
+    top: 10px;
+    left: 10px;
+    width: 780px;
+    text-align: center;
+    line-height: 0.9;
+  }
+  section:first-of-type h1 em {
+    display: block;
+    font-size: 130px;
+    font-style: normal;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.1;
+  }
+
+  h1 > strong {
+    color: white;
+    position: absolute;
+    top: 250px; left: 0;
+    display: block;
+    height: 100px;
+    margin-right: 1em;
+    width: 100px;
+    background-color: #ddd;
+    color: white;
+    text-align: center;
+    font-size: 90px;
+    line-height: 1;
+  }
+
+  footer {
+    display: block;
+    text-align: center;
+    color: #d53c27;
+    font-style: normal;
+    font-size: 50px;
+    font-weight: 300;
+    bottom: 1em;
+    width: 100%;
+    right: 0;
+  }
+
+  .fullscreen {
+      background-color: black;
+  }
+
+  ul {
+    margin: 50px 25px 0px 100px;
+    font-size: 30px;
+    font-weight: 400;
+    list-style: none;
+  }
+
+  ul ul {
+    margin-top: 0.5em;
+  }
+
+  li {
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  ul li:before {
+    content:'\2022';
+    display: block;
+    position: relative;
+    max-width: 0px;
+    max-height: 0px;
+    left: -1em;
+    top: 0.15em;
+    color: #999;
+    font-size: 0.8em;
+  }
+
+  p strong,
+  li strong {
+    color: black;
+    font-size: 70%;
+    font-style: italic;
+    font-weight: 100;
+  }
+
+  pre {
+    font-size: 1.25em;
+    margin: 50px 100px 0px 100px;
+    background-color: #eed;
+    padding: 1em;
+  }
+
+  code {
+    color: #666;
+  }
+
+  pre code {
+    color: black;
+  }
+
+  p {
+    font-size: 1.75em;
+    margin: 50px 10px 0px 100px;
+  }
+
+  #todays-theme p {
+    text-align: center;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  #todays-theme ol {
+    font-size: 3em;
+    list-style: decimal;
+    margin: 50px 100px 0px 200px;
+  }
+
+  /* Incremental elements */
+
+  .incremental li:first-of-type {
+    /*display: block !important;*/
+    /*opacity: 1 !important;*/
+    /*visibility: visible !important;*/
+  }
+
+  /* By default, visible */
+  .incremental > * { 
+    opacity: 1; 
+  }
+
+  /* The current item */
+  .incremental > *[aria-selected] { 
+    background-color: #fff; 
+    opacity: 1; 
+    -webkit-transition: background-color 1000ms linear;
+  }
+
+  /* The items to-be-selected */
+  .incremental > *[aria-selected] ~ * { 
+    background-color: #faffcc; 
+    opacity: 0; 
+  }
+</style>
+
+
+<!-- {{{{ dzslides core
+#
+#
+#     __  __  __       .  __   ___  __
+#    |  \  / /__` |    | |  \ |__  /__`
+#    |__/ /_ .__/ |___ | |__/ |___ .__/ core :€
+#
+#
+# The following block of code is not supposed to be edited.
+# But if you want to change the behavior of these slides,
+# feel free to hack it!
+#
+-->
+
+<div id="progress-bar"></div>
+
+<!-- Default Style -->
+<style>
+  * { margin: 0; padding: 0; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+  details { display: none; }
+  body {
+    width: 800px; height: 600px;
+    margin-left: -400px; margin-top: -300px;
+    position: absolute; top: 50%; left: 50%;
+    overflow: hidden;
+  }
+  section {
+    position: absolute;
+    pointer-events: none;
+    width: 100%; height: 100%;
+  }
+  section[aria-selected] { pointer-events: auto; }
+  html { overflow: hidden; }
+  body { display: none; }
+  body.loaded { display: block; }
+  .incremental {visibility: hidden; }
+  .incremental[active] {visibility: visible; }
+  #progress-bar{
+    bottom: 0;
+    position: absolute;
+    -moz-transition: width 400ms linear 0s;
+    -webkit-transition: width 400ms linear 0s;
+    -ms-transition: width 400ms linear 0s;
+    transition: width 400ms linear 0s;
+  }
+  figure {
+    width: 100%;
+    height: 100%;
+  }
+  figure > * {
+    position: absolute;
+  }
+  figure > img, figure > video {
+    width: 100%; height: 100%;
+  }
+</style>
+
+<script>
+  var Dz = {
+    remoteWindows: [],
+    idx: -1,
+    step: 0,
+    slides: null,
+    progressBar : null,
+    params: {
+      autoplay: "1"
+    }
+  };
+
+  Dz.init = function() {
+    document.body.className = "loaded";
+    this.slides = $$("body > section");
+    this.progressBar = $("#progress-bar");
+    this.setupParams();
+    this.onhashchange();
+    this.setupTouchEvents();
+    this.onresize();
+  }
+  
+  Dz.setupParams = function() {
+    var p = window.location.search.substr(1).split('&');
+    p.forEach(function(e, i, a) {
+      var keyVal = e.split('=');
+      Dz.params[keyVal[0]] = decodeURIComponent(keyVal[1]);
+    });
+  // Specific params handling
+    if (!+this.params.autoplay)
+      $$.forEach($$("video"), function(v){ v.controls = true });
+  }
+
+  Dz.onkeydown = function(aEvent) {
+    // Don't intercept keyboard shortcuts
+    if (aEvent.altKey
+      || aEvent.ctrlKey
+      || aEvent.metaKey
+      || aEvent.shiftKey) {
+      return;
+    }
+    if ( aEvent.keyCode == 37 // left arrow
+      || aEvent.keyCode == 38 // up arrow
+      || aEvent.keyCode == 33 // page up
+    ) {
+      aEvent.preventDefault();
+      this.back();
+    }
+    if ( aEvent.keyCode == 39 // right arrow
+      || aEvent.keyCode == 40 // down arrow
+      || aEvent.keyCode == 34 // page down
+    ) {
+      aEvent.preventDefault();
+      this.forward();
+    }
+    if (aEvent.keyCode == 35) { // end
+      aEvent.preventDefault();
+      this.goEnd();
+    }
+    if (aEvent.keyCode == 36) { // home
+      aEvent.preventDefault();
+      this.goStart();
+    }
+    if (aEvent.keyCode == 32) { // space
+      aEvent.preventDefault();
+      this.toggleContent();
+    }
+    if (aEvent.keyCode == 70) { // f
+      aEvent.preventDefault();
+      this.goFullscreen();
+    }
+  }
+
+  /* Touch Events */
+
+  Dz.setupTouchEvents = function() {
+    var orgX, newX;
+    var tracking = false;
+
+    var db = document.body;
+    db.addEventListener("touchstart", start.bind(this), false);
+    db.addEventListener("touchmove", move.bind(this), false);
+
+    function start(aEvent) {
+      aEvent.preventDefault();
+      tracking = true;
+      orgX = aEvent.changedTouches[0].pageX;
+    }
+
+    function move(aEvent) {
+      if (!tracking) return;
+      newX = aEvent.changedTouches[0].pageX;
+      if (orgX - newX > 100) {
+        tracking = false;
+        this.forward();
+      } else {
+        if (orgX - newX < -100) {
+          tracking = false;
+          this.back();
+        }
+      }
+    }
+  }
+
+  /* Adapt the size of the slides to the window */
+
+  Dz.onresize = function() {
+    var db = document.body;
+    var sx = db.clientWidth / window.innerWidth;
+    var sy = db.clientHeight / window.innerHeight;
+    var transform = "scale(" + (1/Math.max(sx, sy)) + ")";
+
+    db.style.MozTransform = transform;
+    db.style.WebkitTransform = transform;
+    db.style.OTransform = transform;
+    db.style.msTransform = transform;
+    db.style.transform = transform;
+  }
+
+
+  Dz.getDetails = function(aIdx) {
+    var s = $("section:nth-of-type(" + aIdx + ")");
+    var d = s.$("details");
+    return d ? d.innerHTML : "";
+  }
+
+  Dz.onmessage = function(aEvent) {
+    var argv = aEvent.data.split(" "), argc = argv.length;
+    argv.forEach(function(e, i, a) { a[i] = decodeURIComponent(e) });
+    var win = aEvent.source;
+    if (argv[0] === "REGISTER" && argc === 1) {
+      this.remoteWindows.push(win);
+      this.postMsg(win, "REGISTERED", document.title, this.slides.length);
+      this.postMsg(win, "CURSOR", this.idx + "." + this.step);
+      return;
+    }
+    if (argv[0] === "BACK" && argc === 1)
+      this.back();
+    if (argv[0] === "FORWARD" && argc === 1)
+      this.forward();
+    if (argv[0] === "START" && argc === 1)
+      this.goStart();
+    if (argv[0] === "END" && argc === 1)
+      this.goEnd();
+    if (argv[0] === "TOGGLE_CONTENT" && argc === 1)
+      this.toggleContent();
+    if (argv[0] === "SET_CURSOR" && argc === 2)
+      window.location.hash = "#" + argv[1];
+    if (argv[0] === "GET_CURSOR" && argc === 1)
+      this.postMsg(win, "CURSOR", this.idx + "." + this.step);
+    if (argv[0] === "GET_NOTES" && argc === 1)
+      this.postMsg(win, "NOTES", this.getDetails(this.idx));
+  }
+
+  Dz.toggleContent = function() {
+    // If a Video is present in this new slide, play it.
+    // If a Video is present in the previous slide, stop it.
+    var s = $("section[aria-selected]");
+    if (s) {
+      var video = s.$("video");
+      if (video) {
+        if (video.ended || video.paused) {
+          video.play();
+        } else {
+          video.pause();
+        }
+      }
+    }
+  }
+
+  Dz.setCursor = function(aIdx, aStep) {
+    // If the user change the slide number in the URL bar, jump
+    // to this slide.
+    aStep = (aStep != 0 && typeof aStep !== "undefined") ? "." + aStep : ".0";
+    window.location.hash = "#" + aIdx + aStep;
+  }
+
+  Dz.onhashchange = function() {
+    var cursor = window.location.hash.split("#"),
+        newidx = 1,
+        newstep = 0;
+    if (cursor.length == 2) {
+      newidx = ~~cursor[1].split(".")[0];
+      newstep = ~~cursor[1].split(".")[1];
+      if (newstep > Dz.slides[newidx - 1].$$('.incremental > *').length) {
+        newstep = 0;
+        newidx++;
+      }
+    }
+    this.setProgress(newidx, newstep);
+    if (newidx != this.idx) {
+      this.setSlide(newidx);
+    }
+    if (newstep != this.step) {
+      this.setIncremental(newstep);
+    }
+    for (var i = 0; i < this.remoteWindows.length; i++) {
+      this.postMsg(this.remoteWindows[i], "CURSOR", this.idx + "." + this.step);
+    }
+  }
+
+  Dz.back = function() {
+    if (this.idx == 1 && this.step == 0) {
+      return;
+    }
+    if (this.step == 0) {
+      this.setCursor(this.idx - 1,
+                     this.slides[this.idx - 2].$$('.incremental > *').length);
+    } else {
+      this.setCursor(this.idx, this.step - 1);
+    }
+  }
+
+  Dz.forward = function() {
+    if (this.idx >= this.slides.length &&
+        this.step >= this.slides[this.idx - 1].$$('.incremental > *').length) {
+        return;
+    }
+    if (this.step >= this.slides[this.idx - 1].$$('.incremental > *').length) {
+      this.setCursor(this.idx + 1, 0);
+    } else {
+      this.setCursor(this.idx, this.step + 1);
+    }
+  }
+
+  Dz.goStart = function() {
+    this.setCursor(1, 0);
+  }
+
+  Dz.goEnd = function() {
+    var lastIdx = this.slides.length;
+    var lastStep = this.slides[lastIdx - 1].$$('.incremental > *').length;
+    this.setCursor(lastIdx, lastStep);
+  }
+
+  Dz.setSlide = function(aIdx) {
+    this.idx = aIdx;
+    var old = $("section[aria-selected]");
+    var next = $("section:nth-of-type("+ this.idx +")");
+    if (old) {
+      old.removeAttribute("aria-selected");
+      var video = old.$("video");
+      if (video) {
+        video.pause();
+      }
+    }
+    if (next) {
+      next.setAttribute("aria-selected", "true");
+      var video = next.$("video");
+      if (video && !!+this.params.autoplay) {
+        video.play();
+      }
+    } else {
+      // That should not happen
+      this.idx = -1;
+      // console.warn("Slide doesn't exist.");
+    }
+  }
+
+  Dz.setIncremental = function(aStep) {
+    this.step = aStep;
+    var old = this.slides[this.idx - 1].$('.incremental > *[aria-selected]');
+    if (old) {
+      old.removeAttribute('aria-selected');
+    }
+    var incrementals = $$('.incremental');
+    if (this.step <= 0) {
+      $$.forEach(incrementals, function(aNode) {
+        aNode.removeAttribute('active');
+      });
+      return;
+    }
+    var next = this.slides[this.idx - 1].$$('.incremental > *')[this.step - 1];
+    if (next) {
+      next.setAttribute('aria-selected', true);
+      next.parentNode.setAttribute('active', true);
+      var found = false;
+      $$.forEach(incrementals, function(aNode) {
+        if (aNode != next.parentNode)
+          if (found)
+            aNode.removeAttribute('active');
+          else
+            aNode.setAttribute('active', true);
+        else
+          found = true;
+      });
+    } else {
+      setCursor(this.idx, 0);
+    }
+    return next;
+  }
+
+  Dz.goFullscreen = function() {
+    var html = $('html'),
+        requestFullscreen = html.requestFullscreen || html.requestFullScreen || html.mozRequestFullScreen || html.webkitRequestFullScreen;
+    if (requestFullscreen) {
+      requestFullscreen.apply(html);
+    }
+  }
+  
+  Dz.setProgress = function(aIdx, aStep) {
+    var slide = $("section:nth-of-type("+ aIdx +")");
+    if (!slide)
+      return;
+    var steps = slide.$$('.incremental > *').length + 1,
+        slideSize = 100 / (this.slides.length - 1),
+        stepSize = slideSize / steps;
+    this.progressBar.style.width = ((aIdx - 1) * slideSize + aStep * stepSize) + '%';
+  }
+  
+  Dz.postMsg = function(aWin, aMsg) { // [arg0, [arg1...]]
+    aMsg = [aMsg];
+    for (var i = 2; i < arguments.length; i++)
+      aMsg.push(encodeURIComponent(arguments[i]));
+    aWin.postMessage(aMsg.join(" "), "*");
+  }
+  
+  function init() {
+    Dz.init();
+    window.onkeydown = Dz.onkeydown.bind(Dz);
+    window.onresize = Dz.onresize.bind(Dz);
+    window.onhashchange = Dz.onhashchange.bind(Dz);
+    window.onmessage = Dz.onmessage.bind(Dz);
+  }
+
+  window.onload = init;
+</script>
+
+
+<script> // Helpers
+  if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+
+      // closest thing possible to the ECMAScript 5 internal IsCallable
+      // function 
+      if (typeof this !== "function")
+      throw new TypeError(
+        "Function.prototype.bind - what is trying to be fBound is not callable"
+      );
+
+      var aArgs = Array.prototype.slice.call(arguments, 1),
+          fToBind = this,
+          fNOP = function () {},
+          fBound = function () {
+            return fToBind.apply( this instanceof fNOP ? this : oThis || window,
+                   aArgs.concat(Array.prototype.slice.call(arguments)));
+          };
+
+      fNOP.prototype = this.prototype;
+      fBound.prototype = new fNOP();
+
+      return fBound;
+    };
+  }
+
+  var $ = (HTMLElement.prototype.$ = function(aQuery) {
+    return this.querySelector(aQuery);
+  }).bind(document);
+
+  var $$ = (HTMLElement.prototype.$$ = function(aQuery) {
+    return this.querySelectorAll(aQuery);
+  }).bind(document);
+
+  $$.forEach = function(nodeList, fun) {
+    Array.prototype.forEach.call(nodeList, fun);
+  }
+
+</script>
+<!-- vim: set fdm=marker: }}} -->
+</body>
+</html>
